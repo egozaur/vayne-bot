@@ -24,6 +24,7 @@ async def ask_ai(prompt: str) -> str:
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=headers, json=payload) as resp:
             data = await resp.json()
+            print(f"OpenRouter response: {data}")
             return data["choices"][0]["message"]["content"].strip()
 
 
