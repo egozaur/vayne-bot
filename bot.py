@@ -1,13 +1,13 @@
 import os
 import discord
 from discord.ext import commands
-from google import genai
+import google.generativeai as genai
 
-# Konfiguracja
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
-client_ai = genai.Client(api_key=GEMINI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-pro")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -26,7 +26,6 @@ async def vs(ctx, *, champion: str = None):
         return
 
     champion = champion.strip().title()
-
     loading_msg = await ctx.send(f"🎯 Analizuję matchup Vayne Top vs **{champion}**...")
 
     prompt = f"""Jesteś ekspertem League of Legends. Odpowiedz TYLKO po polsku.
@@ -40,10 +39,7 @@ Podaj dokładnie 5 punktów w formacie:
 Każdy punkt max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
 
     try:
-        response = client_ai.models.generate_content(
-            model="models/gemini-1.5-flash",
-            contents=prompt,
-        )
+        response = model.generate_content(prompt)
         answer = response.text.strip()
 
         embed = discord.Embed(
