@@ -18,7 +18,7 @@ async def ask_ai(prompt: str) -> str:
         "Content-Type": "application/json",
     }
     payload = {
-      "model": "mistralai/mistral-7b-instruct:free",
+     "model": "openrouter/free",
         "messages": [{"role": "user", "content": prompt}],
     }
     async with aiohttp.ClientSession() as session:
