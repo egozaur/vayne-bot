@@ -6,6 +6,7 @@ from google import genai
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
+print(f"DEBUG - klucz Gemini (pierwsze 8 znakow): {GEMINI_API_KEY[:8]}")
 client_ai = genai.Client(api_key=GEMINI_API_KEY)
 
 intents = discord.Intents.default()
