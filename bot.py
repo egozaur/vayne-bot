@@ -1,19 +1,30 @@
 import os
+import aiohttp
 import discord
 from discord.ext import commands
-from openai import AsyncOpenAI
 
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 OPENROUTER_API_KEY = os.environ["OPENROUTER_API_KEY"]
 
-client_ai = AsyncOpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=OPENROUTER_API_KEY,
-)
-
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+
+async def ask_ai(prompt: str) -> str:
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": "google/gemini-2.0-flash-lite:free",
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, headers=headers, json=payload) as resp:
+            data = await resp.json()
+            return data["choices"][0]["message"]["content"].strip()
 
 
 @bot.event
@@ -41,19 +52,13 @@ Podaj dokładnie 5 punktów w formacie:
 Każdy punkt max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
 
     try:
-        response = await client_ai.chat.completions.create(
-            model="google/gemini-2.0-flash-lite:free",
-            messages=[{"role": "user", "content": prompt}],
-        )
-        answer = response.choices[0].message.content.strip()
-
+        answer = await ask_ai(prompt)
         embed = discord.Embed(
             title=f"⚔️ Vayne Top vs {champion}",
             description=answer,
             color=0xC89B3C,
         )
         embed.set_footer(text="Powered by Gemini AI • !vs [postać]")
-
         await loading_msg.delete()
         await ctx.send(embed=embed)
 
