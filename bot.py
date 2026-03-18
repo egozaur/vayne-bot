@@ -9,7 +9,7 @@ OPENROUTER_API_KEY = os.environ["OPENROUTER_API_KEY"]
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
- 
+
 
 async def ask_ai(prompt: str) -> str:
     url = "https://openrouter.ai/api/v1/chat/completions"
@@ -18,7 +18,7 @@ async def ask_ai(prompt: str) -> str:
         "Content-Type": "application/json",
     }
     payload = {
-     "model": "openrouter/free",
+        "model": "openrouter/free",
         "messages": [{"role": "user", "content": prompt}],
     }
     async with aiohttp.ClientSession() as session:
@@ -42,26 +42,23 @@ async def vs(ctx, *, champion: str = None):
     champion = champion.strip().title()
     loading_msg = await ctx.send(f"🎯 Analizuję matchup Vayne Top vs **{champion}**...")
 
-    prompt = f"""Jesteś ekspertem League of Legends. Odpowiedz TYLKO po polsku.
-Jak grać Vayne Top vs {champion}?
-Podaj dokładnie 5 punktów w formacie:
-1. [punkt]
-2. [punkt]
-3. [punkt]
-4. [punkt]
-5. [punkt]
-Każdy punkt max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
+    prompt = f"""Jesteś ekspertem League of Legends. Piszesz TYLKO o Vayne Top vs {champion}.
+NIE wspominaj o żadnych innych postaciach.
+Odpowiedz TYLKO po polsku.
+
+Podaj dokładnie 5 porad jak grać Vayne Top przeciwko {champion}:
+1. [porada]
+2. [porada]
+3. [porada]
+4. [porada]
+5. [porada]
+
+Każda porada max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
 
     try:
         answer = await ask_ai(prompt)
-        embed = discord.Embed(
-            title=f"⚔️ Vayne Top vs {champion}",
-            description=answer,
-            color=0xC89B3C,
-        )
-        embed.set_footer(text="Powered by Gemini AI • !vs [postać]")
         await loading_msg.delete()
-        await ctx.send(embed=embed)
+        await ctx.send(f"**⚔️ Vayne Top vs {champion}**\n\n{answer}")
 
     except Exception as e:
         await loading_msg.edit(content=f"❌ Błąd: {e}")
@@ -69,12 +66,7 @@ Każdy punkt max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
 
 @bot.command(name="pomoc")
 async def pomoc(ctx):
-    embed = discord.Embed(
-        title="🏹 Vayne Top Bot - Pomoc",
-        description="**Dostępne komendy:**\n\n`!vs [postać]` — porada jak grać Vayne Top vs daną postać\n`!pomoc` — ta wiadomość",
-        color=0xC89B3C,
-    )
-    await ctx.send(embed=embed)
+    await ctx.send("**🏹 Vayne Top Bot**\n\n`!vs [postać]` — jak grać Vayne Top vs daną postać\n`!pomoc` — ta wiadomość")
 
 
 bot.run(DISCORD_TOKEN)
