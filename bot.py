@@ -41,7 +41,7 @@ Każdy punkt max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
 
     try:
         response = client_ai.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-1.5-flash",
             contents=prompt,
         )
         answer = response.text.strip()
