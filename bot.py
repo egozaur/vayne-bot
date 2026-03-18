@@ -9,7 +9,7 @@ OPENROUTER_API_KEY = os.environ["OPENROUTER_API_KEY"]
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
-
+ 
 
 async def ask_ai(prompt: str) -> str:
     url = "https://openrouter.ai/api/v1/chat/completions"
