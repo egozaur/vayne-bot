@@ -6,12 +6,36 @@ from google import genai
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
-print(f"DEBUG - klucz Gemini (pierwsze 8 znakow): {GEMINI_API_KEY[:8]}")
 client_ai = genai.Client(api_key=GEMINI_API_KEY)
+
+MODELS = [
+    "gemini-2.0-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+]
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+
+async def ask_gemini(prompt: str) -> str:
+    last_error = None
+    for model in MODELS:
+        try:
+            print(f"Próbuję model: {model}")
+            response = client_ai.models.generate_content(
+                model=model,
+                contents=prompt,
+            )
+            print(f"Sukces z modelem: {model}")
+            return response.text.strip()
+        except Exception as e:
+            print(f"Model {model} nie działa: {e}")
+            last_error = e
+            continue
+    raise last_error
 
 
 @bot.event
@@ -39,11 +63,7 @@ Podaj dokładnie 5 punktów w formacie:
 Każdy punkt max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
 
     try:
-        response = client_ai.models.generate_content(
-            model="gemini-2.0-flash-lite",
-            contents=prompt,
-        )
-        answer = response.text.strip()
+        answer = await ask_gemini(prompt)
 
         embed = discord.Embed(
             title=f"⚔️ Vayne Top vs {champion}",
@@ -56,7 +76,7 @@ Każdy punkt max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
         await ctx.send(embed=embed)
 
     except Exception as e:
-        await loading_msg.edit(content=f"❌ Błąd: {e}")
+        await loading_msg.edit(content=f"❌ Wszystkie modele niedostępne: {e}")
 
 
 @bot.command(name="pomoc")
