@@ -18,7 +18,7 @@ async def ask_ai(prompt: str) -> str:
         "Content-Type": "application/json",
     }
     payload = {
-        "model": "google/gemini-2.0-flash-lite:free",
+        "model": "meta-llama/llama-3.3-70b-instruct:free",
         "messages": [{"role": "user", "content": prompt}],
     }
     async with aiohttp.ClientSession() as session:
