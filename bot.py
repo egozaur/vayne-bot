@@ -1,13 +1,13 @@
 import os
 import discord
 from discord.ext import commands
-import google.generativeai as genai
+from google import genai
 
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-pro")
+client_ai = genai.Client(api_key=GEMINI_API_KEY)
+
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -38,7 +38,10 @@ Podaj dokładnie 5 punktów w formacie:
 Każdy punkt max 2 zdania. Bez wstępu, bez podsumowania - tylko 5 punktów."""
 
     try:
-        response = model.generate_content(prompt)
+        response = client_ai.models.generate_content(
+            model="gemini-2.0-flash-lite",
+            contents=prompt,
+        )
         answer = response.text.strip()
 
         embed = discord.Embed(
